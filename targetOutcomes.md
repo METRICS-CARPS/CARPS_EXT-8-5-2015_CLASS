@@ -1,0 +1,11 @@
+# Target Outcomes
+## Article ID: 8_5_2015
+
+For this article you should focus on the findings reported in the results section.
+
+Specifically, you should attempt to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
+
+> We first evaluated whether children in the three language groups had comparable abilities to understand language. Vocabulary scores on the PPVT-4 were not significantly different across the groups (monolingual group: M = 115.4; exposure group: M = 110.5; bilingual group: M = 110.5), F(2, 66) < 1. In addition, all the children were able to follow the director’s instructions in the absence of a distractor: Accuracy on unambiguous trials was high across the board (monolingual group: M = 99.5%; exposure group: M = 99.0%; bilingual group: M = 99.5%). These results suggest that the three groups had comparable proficiency in English. To evaluate the children’s ability to take the director’s perspective in order to understand her intended meaning, we analyzed their selections on the critical trials and found a dramatic difference. Whereas the majority of children in the exposure (63%) and bilingual (58%) groups moved the target on all four critical trials, only a minority of monolingual children were able to perform at that level (21%), χ2(2, N = 72) = 10.14, p = .006, ϕ = .38. Examining the average percentage of trials on which the target was correctly moved (see Fig. 2), we found a significant effect of language group, F(2, 69) = 4.77, p = .01, η2 = .123; children in the exposure and bilingual groups regularly took the director’s perspective (Ms = 76% and 77%, respectively), whereas monolingual children were at chance in selecting between the target and the distractor (M = 50%). Children in the bilingual and exposure groups were significantly more likely than children in the monolingual group to move the target, t(46) = 2.81, p = .007, d = 0.83, and t(46) = 2.51, p = .016, d = 0.74, respectively, whereas the performance of the bilingual and exposure groups did not differ, t(46) = 0.072, p = .94, d = 0.02.
+
+**Note**
+Make sure to use the original article for additional context and information about any necessary pre-processing steps. Also check for additional supplementary materials that may provide supporting documentation for analysis procedures.
