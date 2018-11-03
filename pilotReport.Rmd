@@ -1,5 +1,5 @@
 ---
-title: "CARPS Reproducibility Report"
+title: "CARPS Reproducibility Report (EXT-8-5-2015_CLASS)"
 output:
   html_document:
     toc: true
@@ -17,9 +17,9 @@ articleID <- 'EXT-8-5-2015_CLASS' # insert the article ID code here e.g., "10-3-
 reportType <- 'pilot' # specify whether this is the 'pilot' report or 'final' report
 pilotNames <- 'Jinxiao Zhang' # insert the pilot's name here e.g., "Tom Hardwicke".  If there are multiple cpilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
 copilotNames <- 'Melissa Mesinas' # # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
-pilotTTC <- NA # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+pilotTTC <- 150 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 copilotTTC <- NA # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
-pilotStartDate <- 11/03/2018 # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+pilotStartDate <- as.Date("11/03/2018", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 copilotStartDate <- NA # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 completionDate <- NA # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 ```
@@ -28,13 +28,14 @@ completionDate <- NA # copilot insert the date of final report completion (after
 
 #### Methods summary: 
 
-[PILOT/COPILOT write a brief summary of the methods underlying the target outcomes written in your own words]
+First, vocabulary scores on the PPVT-4 were compared among the three language groups in an ANOVA test. Second, we evaluated children's ability to follow director's instruction without distraction in each group. Third, the percentage of children selecting the target on all 4 critical trials was compared among the three groups with a chi-square test. Fourth, the percentage of correct trials was compared among the 3 groups using an ANOVA, followed post-hoc pair-wise t tests.
+
 
 ------
 
 #### Target outcomes: 
 
-[PILOT copy and paste the target outcomes identified in targetOutcomes.md]  
+We first evaluated whether children in the three language groups had comparable abilities to understand language. Vocabulary scores on the PPVT-4 were not significantly different across the groups (monolingual group: M = 115.4; exposure group: M = 110.5; bilingual group: M = 110.5), F(2, 66) < 1. In addition, all the children were able to follow the director’s instructions in the absence of a distractor: Accuracy on unambiguous trials was high across the board (monolingual group: M = 99.5%; exposure group: M = 99.0%; bilingual group: M = 99.5%). These results suggest that the three groups had comparable proficiency in English. To evaluate the children’s ability to take the director’s perspective in order to understand her intended meaning, we analyzed their selections on the critical trials and found a dramatic difference. Whereas the majority of children in the exposure (63%) and bilingual (58%) groups moved the target on all four critical trials, only a minority of monolingual children were able to perform at that level (21%), χ2(2, N = 72) = 10.14, p = .006, ϕ = .38. Examining the average percentage of trials on which the target was correctly moved (see Fig. 2), we found a significant effect of language group, F(2, 69) = 4.77, p = .01, η2 = .123; children in the exposure and bilingual groups regularly took the director’s perspective (Ms = 76% and 77%, respectively), whereas monolingual children were at chance in selecting between the target and the distractor (M = 50%). Children in the bilingual and exposure groups were significantly more likely than children in the monolingual group to move the target, t(46) = 2.81, p = .007, d = 0.83, and t(46) = 2.51, p = .016, d = 0.74, respectively, whereas the performance of the bilingual and exposure groups did not differ, t(46) = 0.072, p = .94, d = 0.02. 
 
 ------
 
@@ -68,50 +69,95 @@ reportObject <- data.frame(dummyRow = TRUE, reportedValue = NA, obtainedValue = 
 # Step 2: Load data
 
 ```{r}
+data <- read_csv("data/Final Data.csv")
 ```
 
 # Step 3: Tidy data
 
 ```{r}
+# data is already tidy
 ```
 
 # Step 4: Run analysis
 
 ## Pre-processing
 
-[you can remove this section if no pre-processing is required]
-
 ```{r}
+# create a new variable (grid_percent) as the percentage of correcting moving the target object (total trial = 4); create a variable (grid_full) as the label of whether the child moved all 4 targets
+data <- data %>% 
+  mutate(grid_percent = grid / 4, grid_full = (grid == 4))
+
+data$language = factor(data$language)
+data$language_label = factor(data$language, labels = c('monolingual','exposure', 'bilingual'))
 ```
 
 ## Descriptive statistics
 
 ```{r}
+# average PPVT score and average percent of trials selecting target in each group
+group <- data %>% 
+  group_by(language) %>% 
+  summarise(mean_ppvt = mean(ppvt, na.rm = TRUE), mean_grid_percent = mean(grid_percent, na.rm = TRUE))
+
+# percent of participants who selected the target in all 4 trials in each group
+group$child_percent <- count(group_by(filter(data,grid == 4), language))$n /count(group_by(data,language))$n
+# alternatively, use %>% 
+# group$child_percent <- (data %>% group_by(language) %>% filter(grid == 4) %>% count())$n / (data %>% group_by(language) %>% count())$n
+
+# add language_label to "group" data frame
+group$language_label = c('monolingual','exposure', 'bilingual')
+kable(head(group), digits = 2)
 ```
 
 ## Inferential statistics
 
 ```{r}
+library(effsize) 
+# Step 1: ANOVA on ppvt (eta-squared = r-squared)
+lm_ppvt <- lm(ppvt~language, data=data)
+summary(lm_ppvt)
+
+# Step 2: evaluate children's ability to follow director's instruction without distraction in each group
+# data not found
+
+# Step 3: chi-square test on whether a child moving all 4 targets is contigent on their language group
+chisq.test(data$language,data$grid_full)
+
+# Step 4: ANOVA on the percentage of correct trials (eta-squared = r-squared)
+lm_grid <- lm(grid_percent~language, data=data)
+summary(lm_grid)
+#post-hoc t tests
+# between 1-monolingual and 2-exposure, and cohen's d
+t.test(data[data$language == 1,]$grid_percent, data[data$language == 2,]$grid_percent, var.equal = TRUE)
+cohen.d(data[data$language == 1,]$grid_percent, data[data$language == 2,]$grid_percent) 
+# between 1-monolingual and 3-bilingual, and cohen's d
+t.test(data[data$language == 1,]$grid_percent, data[data$language == 3,]$grid_percent, var.equal = TRUE)
+cohen.d(data[data$language == 1,]$grid_percent, data[data$language == 3,]$grid_percent) 
+# between 2-exposure and 3-bilingual, and cohen's d
+t.test(data[data$language == 2,]$grid_percent, data[data$language == 3,]$grid_percent, var.equal = TRUE)
+cohen.d(data[data$language == 2,]$grid_percent, data[data$language == 3,]$grid_percent) 
 ```
 
 # Step 5: Conclusion
 
-[Please include a text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
+In a large extent, my analyses reproduced the results reported in the original paper. I found that the PPVT-4 scores were not significantly different across the language groups. I found that the majority of the bilingual group (58%) and the exposure group (63%) moved all 4 targets correctly, while there were only 21% of the monolingual group achieved that. In addition, children in the 3 groups differed in their percentage of correctly selecting the targets. The bilingual group (76%) and the exposure group (77%) had significantly higher accuracy than the monolingual group (50%).
+
+There were two points that my analyses did not match the original paper. First, the data of accuracy on unambiguous trials seemed not provided in the dataset. Second, the F-value and t-values on the accuratcy percentage from my tests were very close to those reported in the paper, but not exactly the same. For example, the ANOVA result in my analysis was F(2, 69) = 4.84 but that was F(2, 69) = 4.77 in the paper. These nuances did not change any interpretation of the data or the claimed conclusion in the paper.
   
 [PILOT/COPILOT ENTER RELEVANT INFORMATION BELOW]
 
 ```{r}
 Author_Assistance = FALSE # was author assistance provided? (if so, enter TRUE)
 
-Insufficient_Information_Errors <- 0 # how many discrete insufficient information issues did you encounter?
+Insufficient_Information_Errors <- 1 # how many discrete insufficient information issues did you encounter?
 
 # Assess the causal locus (discrete reproducibility issues) of any reproducibility errors. Note that there doesn't necessarily have to be a one-to-one correspondance between discrete reproducibility issues and reproducibility errors. For example, it could be that the original article neglects to mention that a Greenhouse-Geisser correct was applied to ANOVA outcomes. This might result in multiple reproducibility errors, but there is a single causal locus (discrete reproducibility issue).
 
 locus_typo <- NA # how many discrete issues did you encounter that related to typographical errors?
 locus_specification <- NA # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
 locus_analysis <- NA # how many discrete issues did you encounter that related to errors in the authors' original analyses?
-locus_data <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
-locus_unidentified <- NA # how many discrete issues were there for which you could not identify the cause
+locus_data <- 1 # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
+locus_unidentified <- 1 # how many discrete issues were there for which you could not identify the cause
 
 # How many of the above issues were resolved through author assistance?
 locus_typo_resolved <- NA # how many discrete issues did you encounter that related to typographical errors?
@@ -120,7 +166,7 @@ locus_analysis_resolved <- NA # how many discrete issues did you encounter that 
 locus_data_resolved <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
 locus_unidentified_resolved <- NA # how many discrete issues were there for which you could not identify the cause
 
-Affects_Conclusion <- NA # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? TRUE, FALSE, or NA. This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
+Affects_Conclusion <- FALSE # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? TRUE, FALSE, or NA. This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
 ```
 
 [PILOT/COPILOT DOD NOT EDIT THE CODE CHUNK BELOW]
