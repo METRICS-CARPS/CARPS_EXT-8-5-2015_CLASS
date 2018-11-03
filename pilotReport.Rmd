@@ -106,7 +106,23 @@ group$child_percent <- count(group_by(filter(data,grid == 4), language))$n /coun
 
 # add language_label to "group" data frame
 group$language_label = c('monolingual','exposure', 'bilingual')
+# display table of group-wise data
 kable(head(group), digits = 2)
+
+#repro checks
+#mean_ppvt
+reportObject <- reproCheck(reportedValue = '115.4', obtainedValue = group$mean_ppvt[1], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '110.5', obtainedValue = group$mean_ppvt[2], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '110.5', obtainedValue = group$mean_ppvt[3], valueType = 'mean')
+#mean_grid_percent
+reportObject <- reproCheck(reportedValue = '.50', obtainedValue = group$mean_grid_percent[1], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.76', obtainedValue = group$mean_grid_percent[2], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.77', obtainedValue = group$mean_grid_percent[3], valueType = 'mean')
+#child_percent
+reportObject <- reproCheck(reportedValue = '.21', obtainedValue = group$child_percent[1], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.63', obtainedValue = group$child_percent[2], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.58', obtainedValue = group$child_percent[3], valueType = 'mean')
+
 ```
 
 ## Inferential statistics
@@ -116,26 +132,67 @@ library(effsize)
 # Step 1: ANOVA on ppvt (eta-squared = r-squared)
 lm_ppvt <- lm(ppvt~language, data=data)
 summary(lm_ppvt)
+  #repro check
+F_value <- .8478
+reportObject <- reproCheck(reportedValue = '< 1', obtainedValue = F_value, valueType = 'F', eyeballCheck = TRUE)
 
+# INSUFFICIENT INFORMATION ERROR
 # Step 2: evaluate children's ability to follow director's instruction without distraction in each group
 # data not found
 
 # Step 3: chi-square test on whether a child moving all 4 targets is contigent on their language group
 chisq.test(data$language,data$grid_full)
+  #repro check
+chisq_value <- 10.142
+reportObject <- reproCheck(reportedValue = '10.14', obtainedValue = chisq_value, valueType = 'x2')
+p_value <- 0.006275
+reportObject <- reproCheck(reportedValue = '.006', obtainedValue = p_value, valueType = 'p')
+
 
 # Step 4: ANOVA on the percentage of correct trials (eta-squared = r-squared)
 lm_grid <- lm(grid_percent~language, data=data)
 summary(lm_grid)
+  #repro check
+F_value <- 4.844
+reportObject <- reproCheck(reportedValue = '4.77', obtainedValue = F_value, valueType = 'F')
+p_value <- 0.01075
+reportObject <- reproCheck(reportedValue = '.01', obtainedValue = p_value, valueType = 'p')
+etasq_value <- 0.1231
+reportObject <- reproCheck(reportedValue = '.123', obtainedValue = etasq_value, valueType = 'pes')
+
 #post-hoc t tests
-# between 1-monolingual and 2-exposure, and cohen's d
+# t-test between 1-monolingual and 2-exposure, and cohen's d
 t.test(data[data$language == 1,]$grid_percent, data[data$language == 2,]$grid_percent, var.equal = TRUE)
 cohen.d(data[data$language == 1,]$grid_percent, data[data$language == 2,]$grid_percent) 
-# between 1-monolingual and 3-bilingual, and cohen's d
+  #repro check
+this_t <- 2.5115
+reportObject <- reproCheck(reportedValue = '2.51', obtainedValue = this_t, valueType = 't')
+p_value <- 0.0156
+reportObject <- reproCheck(reportedValue = '.016', obtainedValue = p_value, valueType = 'p')
+d_value <- .7250052
+reportObject <- reproCheck(reportedValue = '.74', obtainedValue = d_value, valueType = 'd')
+
+# t-test between 1-monolingual and 3-bilingual, and cohen's d
 t.test(data[data$language == 1,]$grid_percent, data[data$language == 3,]$grid_percent, var.equal = TRUE)
 cohen.d(data[data$language == 1,]$grid_percent, data[data$language == 3,]$grid_percent) 
-# between 2-exposure and 3-bilingual, and cohen's d
+  #repro check
+this_t <- 2.8487
+reportObject <- reproCheck(reportedValue = '2.81', obtainedValue = this_t, valueType = 't')
+p_value <- 0.006545
+reportObject <- reproCheck(reportedValue = '.007', obtainedValue = p_value, valueType = 'p')
+d_value <- .8223352
+reportObject <- reproCheck(reportedValue = '.83', obtainedValue = d_value, valueType = 'd')
+
+# t-test between 2-exposure and 3-bilingual, and cohen's d
 t.test(data[data$language == 2,]$grid_percent, data[data$language == 3,]$grid_percent, var.equal = TRUE)
 cohen.d(data[data$language == 2,]$grid_percent, data[data$language == 3,]$grid_percent) 
+  #repro check
+this_t <- 0.10759
+reportObject <- reproCheck(reportedValue = '0.072', obtainedValue = this_t, valueType = 't')
+p_value <- .9148
+reportObject <- reproCheck(reportedValue = '.94', obtainedValue = p_value, valueType = 'p')
+d_value <- 0.031058
+reportObject <- reproCheck(reportedValue = '.02', obtainedValue = d_value, valueType = 'd')
 ```
 
 # Step 5: Conclusion

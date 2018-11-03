@@ -295,6 +295,7 @@ group$child_percent &lt;- count(group_by(filter(data,grid == 4), language))$n /c
 
 # add language_label to &quot;group&quot; data frame
 group$language_label = c('monolingual','exposure', 'bilingual')
+# display table of group-wise data
 kable(head(group), digits = 2)</code></pre>
 <table>
 <thead>
@@ -330,6 +331,28 @@ kable(head(group), digits = 2)</code></pre>
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>#repro checks
+#mean_ppvt
+reportObject &lt;- reproCheck(reportedValue = '115.4', obtainedValue = group$mean_ppvt[1], valueType = 'mean')</code></pre>
+<pre><code>## [1] &quot;MATCH for mean. The reported value (115.4) and the obtained value (115.4) differed by 0%. Note that the obtained value was rounded to 1 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>reportObject &lt;- reproCheck(reportedValue = '110.5', obtainedValue = group$mean_ppvt[2], valueType = 'mean')</code></pre>
+<pre><code>## [1] &quot;MATCH for mean. The reported value (110.5) and the obtained value (110.5) differed by 0%. Note that the obtained value was rounded to 1 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>reportObject &lt;- reproCheck(reportedValue = '110.5', obtainedValue = group$mean_ppvt[3], valueType = 'mean')</code></pre>
+<pre><code>## [1] &quot;MATCH for mean. The reported value (110.5) and the obtained value (110.5) differed by 0%. Note that the obtained value was rounded to 1 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>#mean_grid_percent
+reportObject &lt;- reproCheck(reportedValue = '.50', obtainedValue = group$mean_grid_percent[1], valueType = 'mean')</code></pre>
+<pre><code>## [1] &quot;MATCH for mean. The reported value (0.5) and the obtained value (0.5) differed by 0%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>reportObject &lt;- reproCheck(reportedValue = '.76', obtainedValue = group$mean_grid_percent[2], valueType = 'mean')</code></pre>
+<pre><code>## [1] &quot;MATCH for mean. The reported value (0.76) and the obtained value (0.76) differed by 0%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>reportObject &lt;- reproCheck(reportedValue = '.77', obtainedValue = group$mean_grid_percent[3], valueType = 'mean')</code></pre>
+<pre><code>## [1] &quot;MATCH for mean. The reported value (0.77) and the obtained value (0.77) differed by 0%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>#child_percent
+reportObject &lt;- reproCheck(reportedValue = '.21', obtainedValue = group$child_percent[1], valueType = 'mean')</code></pre>
+<pre><code>## [1] &quot;MATCH for mean. The reported value (0.21) and the obtained value (0.21) differed by 0%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>reportObject &lt;- reproCheck(reportedValue = '.63', obtainedValue = group$child_percent[2], valueType = 'mean')</code></pre>
+<pre><code>## [1] &quot;MINOR_ERROR for mean. The reported value (0.63) and the obtained value (0.62) differed by 1.59%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>reportObject &lt;- reproCheck(reportedValue = '.58', obtainedValue = group$child_percent[3], valueType = 'mean')</code></pre>
+<pre><code>## [1] &quot;MATCH for mean. The reported value (0.58) and the obtained value (0.58) differed by 0%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
 </div>
 <div id="inferential-statistics" class="section level2">
 <h2>Inferential statistics</h2>
@@ -357,7 +380,12 @@ summary(lm_ppvt)</code></pre>
 ##   (3 observations deleted due to missingness)
 ## Multiple R-squared:  0.02505,    Adjusted R-squared:  -0.004498 
 ## F-statistic: 0.8478 on 2 and 66 DF,  p-value: 0.433</code></pre>
-<pre class="r"><code># Step 2: evaluate children's ability to follow director's instruction without distraction in each group
+<pre class="r"><code>  #repro check
+F_value &lt;- .8478
+reportObject &lt;- reproCheck(reportedValue = '&lt; 1', obtainedValue = F_value, valueType = 'F', eyeballCheck = TRUE)</code></pre>
+<pre><code>## [1] &quot;MATCH for F. Eyeball comparison only.&quot;</code></pre>
+<pre class="r"><code># INSUFFICIENT INFORMATION ERROR
+# Step 2: evaluate children's ability to follow director's instruction without distraction in each group
 # data not found
 
 # Step 3: chi-square test on whether a child moving all 4 targets is contigent on their language group
@@ -367,6 +395,13 @@ chisq.test(data$language,data$grid_full)</code></pre>
 ## 
 ## data:  data$language and data$grid_full
 ## X-squared = 10.142, df = 2, p-value = 0.006275</code></pre>
+<pre class="r"><code>  #repro check
+chisq_value &lt;- 10.142
+reportObject &lt;- reproCheck(reportedValue = '10.14', obtainedValue = chisq_value, valueType = 'x2')</code></pre>
+<pre><code>## [1] &quot;MATCH for x2. The reported value (10.14) and the obtained value (10.14) differed by 0%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>p_value &lt;- 0.006275
+reportObject &lt;- reproCheck(reportedValue = '.006', obtainedValue = p_value, valueType = 'p')</code></pre>
+<pre><code>## [1] &quot;MATCH for p. The reported value (0.006) and the obtained value (0.006) differed by 0%. Note that the obtained value was rounded to 3 decimal places to match the reported value.&quot;</code></pre>
 <pre class="r"><code># Step 4: ANOVA on the percentage of correct trials (eta-squared = r-squared)
 lm_grid &lt;- lm(grid_percent~language, data=data)
 summary(lm_grid)</code></pre>
@@ -389,8 +424,18 @@ summary(lm_grid)</code></pre>
 ## Residual standard error: 0.3416 on 69 degrees of freedom
 ## Multiple R-squared:  0.1231, Adjusted R-squared:  0.0977 
 ## F-statistic: 4.844 on 2 and 69 DF,  p-value: 0.01075</code></pre>
+<pre class="r"><code>  #repro check
+F_value &lt;- 4.844
+reportObject &lt;- reproCheck(reportedValue = '4.77', obtainedValue = F_value, valueType = 'F')</code></pre>
+<pre><code>## [1] &quot;MINOR_ERROR for F. The reported value (4.77) and the obtained value (4.84) differed by 1.47%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>p_value &lt;- 0.01075
+reportObject &lt;- reproCheck(reportedValue = '.01', obtainedValue = p_value, valueType = 'p')</code></pre>
+<pre><code>## [1] &quot;MATCH for p. The reported value (0.01) and the obtained value (0.01) differed by 0%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>etasq_value &lt;- 0.1231
+reportObject &lt;- reproCheck(reportedValue = '.123', obtainedValue = etasq_value, valueType = 'pes')</code></pre>
+<pre><code>## [1] &quot;MATCH for pes. The reported value (0.123) and the obtained value (0.123) differed by 0%. Note that the obtained value was rounded to 3 decimal places to match the reported value.&quot;</code></pre>
 <pre class="r"><code>#post-hoc t tests
-# between 1-monolingual and 2-exposure, and cohen's d
+# t-test between 1-monolingual and 2-exposure, and cohen's d
 t.test(data[data$language == 1,]$grid_percent, data[data$language == 2,]$grid_percent, var.equal = TRUE)</code></pre>
 <pre><code>## 
 ##  Two Sample t-test
@@ -411,7 +456,17 @@ t.test(data[data$language == 1,]$grid_percent, data[data$language == 2,]$grid_pe
 ## 95 percent confidence interval:
 ##        inf        sup 
 ## -1.3248639 -0.1251466</code></pre>
-<pre class="r"><code># between 1-monolingual and 3-bilingual, and cohen's d
+<pre class="r"><code>  #repro check
+this_t &lt;- 2.5115
+reportObject &lt;- reproCheck(reportedValue = '2.51', obtainedValue = this_t, valueType = 't')</code></pre>
+<pre><code>## [1] &quot;MATCH for t. The reported value (2.51) and the obtained value (2.51) differed by 0%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>p_value &lt;- 0.0156
+reportObject &lt;- reproCheck(reportedValue = '.016', obtainedValue = p_value, valueType = 'p')</code></pre>
+<pre><code>## [1] &quot;MATCH for p. The reported value (0.016) and the obtained value (0.016) differed by 0%. Note that the obtained value was rounded to 3 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>d_value &lt;- .7250052
+reportObject &lt;- reproCheck(reportedValue = '.74', obtainedValue = d_value, valueType = 'd')</code></pre>
+<pre><code>## [1] &quot;MINOR_ERROR for d. The reported value (0.74) and the obtained value (0.73) differed by 1.35%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code># t-test between 1-monolingual and 3-bilingual, and cohen's d
 t.test(data[data$language == 1,]$grid_percent, data[data$language == 3,]$grid_percent, var.equal = TRUE)</code></pre>
 <pre><code>## 
 ##  Two Sample t-test
@@ -432,7 +487,17 @@ t.test(data[data$language == 1,]$grid_percent, data[data$language == 3,]$grid_pe
 ## 95 percent confidence interval:
 ##        inf        sup 
 ## -1.4274689 -0.2172016</code></pre>
-<pre class="r"><code># between 2-exposure and 3-bilingual, and cohen's d
+<pre class="r"><code>  #repro check
+this_t &lt;- 2.8487
+reportObject &lt;- reproCheck(reportedValue = '2.81', obtainedValue = this_t, valueType = 't')</code></pre>
+<pre><code>## [1] &quot;MINOR_ERROR for t. The reported value (2.81) and the obtained value (2.85) differed by 1.42%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>p_value &lt;- 0.006545
+reportObject &lt;- reproCheck(reportedValue = '.007', obtainedValue = p_value, valueType = 'p')</code></pre>
+<pre><code>## [1] &quot;MATCH for p. The reported value (0.007) and the obtained value (0.007) differed by 0%. Note that the obtained value was rounded to 3 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>d_value &lt;- .8223352
+reportObject &lt;- reproCheck(reportedValue = '.83', obtainedValue = d_value, valueType = 'd')</code></pre>
+<pre><code>## [1] &quot;MINOR_ERROR for d. The reported value (0.83) and the obtained value (0.82) differed by 1.2%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code># t-test between 2-exposure and 3-bilingual, and cohen's d
 t.test(data[data$language == 2,]$grid_percent, data[data$language == 3,]$grid_percent, var.equal = TRUE)</code></pre>
 <pre><code>## 
 ##  Two Sample t-test
@@ -453,6 +518,16 @@ t.test(data[data$language == 2,]$grid_percent, data[data$language == 3,]$grid_pe
 ## 95 percent confidence interval:
 ##        inf        sup 
 ## -0.6121660  0.5500499</code></pre>
+<pre class="r"><code>  #repro check
+this_t &lt;- 0.10759
+reportObject &lt;- reproCheck(reportedValue = '0.072', obtainedValue = this_t, valueType = 't')</code></pre>
+<pre><code>## [1] &quot;MAJOR_ERROR for t. The reported value (0.072) and the obtained value (0.108) differed by 50%. Note that the obtained value was rounded to 3 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>p_value &lt;- .9148
+reportObject &lt;- reproCheck(reportedValue = '.94', obtainedValue = p_value, valueType = 'p')</code></pre>
+<pre><code>## [1] &quot;MINOR_ERROR for p. The reported value (0.94) and the obtained value (0.91) differed by 3.19%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
+<pre class="r"><code>d_value &lt;- 0.031058
+reportObject &lt;- reproCheck(reportedValue = '.02', obtainedValue = d_value, valueType = 'd')</code></pre>
+<pre><code>## [1] &quot;MAJOR_ERROR for d. The reported value (0.02) and the obtained value (0.03) differed by 50%. Note that the obtained value was rounded to 2 decimal places to match the reported value.&quot;</code></pre>
 </div>
 </div>
 <div id="step-5-conclusion" class="section level1">
