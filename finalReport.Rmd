@@ -9,18 +9,17 @@ output:
 
 # Report Details
 
-[PILOT/COPILOT ENTER RELEVANT REPORT DETAILS HERE]
 
 ```{r}
 articleID <- 'EXT-8-5-2015_CLASS' # insert the article ID code here e.g., "10-3-2015_PS"
 reportType <- 'pilot' # specify whether this is the 'pilot' report or 'final' report
 pilotNames <- 'Jinxiao Zhang' # insert the pilot's name here e.g., "Tom Hardwicke".  If there are multiple cpilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
 copilotNames <- 'Melissa Mesinas' # # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
-pilotTTC <- 210 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
-copilotTTC <- NA # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+pilotTTC <- 240 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+copilotTTC <- 30 # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 pilotStartDate <- as.Date("11/03/2018", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
-copilotStartDate <- NA # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
-completionDate <- NA # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+copilotStartDate <- as.Date("11/04/2018", format = "%m/%d/%y") # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+completionDate <- as.Date("11/04/2018", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 ```
 
 ------
@@ -46,8 +45,6 @@ knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
 ```
 
 # Step 1: Load packages and prepare report object
-
-[PILOT/COPILOT Some useful packages are being loaded below. You can add any additional ones you might need too.]
 
 ```{r}
 # load packages
@@ -86,6 +83,7 @@ data <- read_csv("data/Final Data.csv")
 data <- data %>% 
   mutate(grid_percent = grid / 4, grid_full = (grid == 4))
 
+# factor the "language" variable
 data$language = factor(data$language)
 data$language_label = factor(data$language, labels = c('monolingual','exposure', 'bilingual'))
 ```
@@ -199,8 +197,7 @@ reportObject <- reproCheck(reportedValue = '.02', obtainedValue = d_value, value
 In a large extent, my analyses reproduced the results reported in the original paper. I found that the PPVT-4 scores were not significantly different across the language groups. I found that the majority of the bilingual group (58%) and the exposure group (63%) moved all 4 targets correctly, while there were only 21% of the monolingual group achieved that. In addition, children in the 3 groups differed in their percentage of correctly selecting the targets. The bilingual group (76%) and the exposure group (77%) had significantly higher accuracy than the monolingual group (50%).
 
 There were two points that my analyses did not match the original paper. First, the data of accuracy on unambiguous trials seemed not provided in the dataset. Second, the F-value and t-values on the accuratcy percentage from my tests were very close to those reported in the paper, but not exactly the same. For example, the ANOVA result in my analysis was F(2, 69) = 4.84 but that was F(2, 69) = 4.77 in the paper. These nuances did not change any interpretation of the data or the claimed conclusion in the paper.
-  
-[PILOT/COPILOT ENTER RELEVANT INFORMATION BELOW]
+
 
 ```{r}
 Author_Assistance = FALSE # was author assistance provided? (if so, enter TRUE)
