@@ -1,0 +1,268 @@
+---
+title: "CARPS Reproducibility Report (EXT-8-5-2015_CLASS)"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+
+# Report Details
+
+
+```{r}
+articleID <- 'EXT-8-5-2015_CLASS' # insert the article ID code here e.g., "10-3-2015_PS"
+reportType <- 'pilot' # specify whether this is the 'pilot' report or 'final' report
+pilotNames <- 'Jinxiao Zhang' # insert the pilot's name here e.g., "Tom Hardwicke".  If there are multiple cpilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
+copilotNames <- 'Melissa Mesinas' # # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
+pilotTTC <- 240 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+copilotTTC <- 30 # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+pilotStartDate <- as.Date("11/03/2018", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+copilotStartDate <- as.Date("11/04/2018", format = "%m/%d/%y") # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+completionDate <- as.Date("11/04/2018", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+```
+
+------
+
+#### Methods summary: 
+
+First, vocabulary scores on the PPVT-4 were compared among the three language groups in an ANOVA test. Second, we evaluated children's ability to follow director's instruction without distraction in each group. Third, the percentage of children selecting the target on all 4 critical trials was compared among the three groups with a chi-square test. Fourth, the percentage of correct trials was compared among the 3 groups using an ANOVA, followed post-hoc pair-wise t tests.
+
+
+------
+
+#### Target outcomes: 
+
+> We first evaluated whether children in the three language groups had comparable abilities to understand language. Vocabulary scores on the PPVT-4 were not significantly different across the groups (monolingual group: M = 115.4; exposure group: M = 110.5; bilingual group: M = 110.5), F(2, 66) < 1. In addition, all the children were able to follow the director's instructions in the absence of a distractor: Accuracy on unambiguous trials was high across the board (monolingual group: M = 99.5%; exposure group: M = 99.0%; bilingual group: M = 99.5%). These results suggest that the three groups had comparable proficiency in English. To evaluate the children's ability to take the director's perspective in order to understand her intended meaning, we analyzed their selections on the critical trials and found a dramatic difference. Whereas the majority of children in the exposure (63%) and bilingual (58%) groups moved the target on all four critical trials, only a minority of monolingual children were able to perform at that level (21%), ??2(2, N = 72) = 10.14, p = .006, ?? = .38. Examining the average percentage of trials on which the target was correctly moved (see Fig. 2), we found a significant effect of language group, F(2, 69) = 4.77, p  =.01, ??2 = .123; children in the exposure and bilingual groups regularly took the director's perspective (Ms = 76% and 77%, respectively), whereas monolingual children were at chance in selecting between the target and the distractor (M = 50%). Children in the bilingual and exposure groups were significantly more likely than children in the monolingual group to move the target, t(46) = 2.81, p = .007, d = 0.83, and t(46) = 2.51, p = .016, d = 0.74, respectively, whereas the performance of the bilingual and exposure groups did not differ, t(46) = 0.072, p = .94, d = 0.02.
+
+------
+
+[PILOT/COPILOT DO NOT CHANGE THE CODE IN THE CHUNK BELOW]  
+
+```{r global_options, include=FALSE}
+# sets up some formatting options for the R Markdown document
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+# Step 1: Load packages and prepare report object
+
+```{r}
+# load packages
+library(tidyverse) # for data munging
+library(knitr) # for kable table formating
+library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
+library(readxl) # import excel files
+library(CARPSreports) # custom report functions
+```
+
+[PILOT/COPILOT DO NOT MAKE CHANGES TO THE CODE CHUNK BELOW]
+
+```{r}
+# Prepare report object. This will be updated automatically by the reproCheck function each time values are compared
+reportObject <- data.frame(dummyRow = TRUE, reportedValue = NA, obtainedValue = NA, valueType = NA, percentageError = NA, comparisonOutcome = NA, eyeballCheck = NA)
+```
+
+# Step 2: Load data
+
+```{r}
+data <- read_csv("data/Final Data.csv")
+```
+
+# Step 3: Tidy data
+
+```{r}
+# data is already tidy
+```
+
+# Step 4: Run analysis
+
+## Pre-processing
+
+```{r}
+# create a new variable (grid_percent) as the percentage of correcting moving the target object (total trial = 4); create a variable (grid_full) as the label of whether the child moved all 4 targets
+data <- data %>% 
+  mutate(grid_percent = grid / 4, grid_full = (grid == 4))
+
+# factor the "language" variable
+data$language = factor(data$language)
+data$language_label = factor(data$language, labels = c('monolingual','exposure', 'bilingual'))
+```
+
+## Descriptive statistics
+
+```{r}
+# average PPVT score and average percent of trials selecting target in each group
+group <- data %>% 
+  group_by(language) %>% 
+  summarise(mean_ppvt = mean(ppvt, na.rm = TRUE), mean_grid_percent = mean(grid_percent, na.rm = TRUE))
+
+# percent of participants who selected the target in all 4 trials in each group
+group$child_percent <- count(group_by(filter(data,grid == 4), language))$n /count(group_by(data,language))$n
+# alternatively, use %>% 
+# group$child_percent <- (data %>% group_by(language) %>% filter(grid == 4) %>% count())$n / (data %>% group_by(language) %>% count())$n
+
+# add language_label to "group" data frame
+group$language_label = c('monolingual','exposure', 'bilingual')
+# display table of group-wise data
+kable(head(group), digits = 2)
+
+#repro checks
+#mean_ppvt
+reportObject <- reproCheck(reportedValue = '115.4', obtainedValue = group$mean_ppvt[1], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '110.5', obtainedValue = group$mean_ppvt[2], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '110.5', obtainedValue = group$mean_ppvt[3], valueType = 'mean')
+#mean_grid_percent
+reportObject <- reproCheck(reportedValue = '.50', obtainedValue = group$mean_grid_percent[1], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.76', obtainedValue = group$mean_grid_percent[2], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.77', obtainedValue = group$mean_grid_percent[3], valueType = 'mean')
+#child_percent
+reportObject <- reproCheck(reportedValue = '.21', obtainedValue = group$child_percent[1], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.63', obtainedValue = group$child_percent[2], valueType = 'mean')
+reportObject <- reproCheck(reportedValue = '.58', obtainedValue = group$child_percent[3], valueType = 'mean')
+
+```
+
+## Inferential statistics
+
+```{r}
+library(effsize) 
+# Step 1: ANOVA on ppvt (eta-squared = r-squared)
+lm_ppvt <- lm(ppvt~language, data=data)
+summary(lm_ppvt)
+  #repro check
+F_value <- .8478
+reportObject <- reproCheck(reportedValue = '< 1', obtainedValue = F_value, valueType = 'F', eyeballCheck = TRUE)
+
+# INSUFFICIENT INFORMATION ERROR
+# Step 2: evaluate children's ability to follow director's instruction without distraction in each group
+# data not found
+
+# Step 3: chi-square test on whether a child moving all 4 targets is contigent on their language group
+chisq.test(data$language,data$grid_full)
+  #repro check
+chisq_value <- 10.142
+reportObject <- reproCheck(reportedValue = '10.14', obtainedValue = chisq_value, valueType = 'x2')
+p_value <- 0.006275
+reportObject <- reproCheck(reportedValue = '.006', obtainedValue = p_value, valueType = 'p')
+
+
+# Step 4: ANOVA on the percentage of correct trials (eta-squared = r-squared)
+lm_grid <- lm(grid_percent~language, data=data)
+summary(lm_grid)
+  #repro check
+F_value <- 4.844
+reportObject <- reproCheck(reportedValue = '4.77', obtainedValue = F_value, valueType = 'F')
+p_value <- 0.01075
+reportObject <- reproCheck(reportedValue = '.01', obtainedValue = p_value, valueType = 'p')
+etasq_value <- 0.1231
+reportObject <- reproCheck(reportedValue = '.123', obtainedValue = etasq_value, valueType = 'pes')
+
+#post-hoc t tests
+# t-test between 1-monolingual and 2-exposure, and cohen's d
+t.test(data[data$language == 1,]$grid_percent, data[data$language == 2,]$grid_percent, var.equal = TRUE)
+cohen.d(data[data$language == 1,]$grid_percent, data[data$language == 2,]$grid_percent) 
+  #repro check
+this_t <- 2.5115
+reportObject <- reproCheck(reportedValue = '2.51', obtainedValue = this_t, valueType = 't')
+p_value <- 0.0156
+reportObject <- reproCheck(reportedValue = '.016', obtainedValue = p_value, valueType = 'p')
+d_value <- .7250052
+reportObject <- reproCheck(reportedValue = '.74', obtainedValue = d_value, valueType = 'd')
+
+# t-test between 1-monolingual and 3-bilingual, and cohen's d
+t.test(data[data$language == 1,]$grid_percent, data[data$language == 3,]$grid_percent, var.equal = TRUE)
+cohen.d(data[data$language == 1,]$grid_percent, data[data$language == 3,]$grid_percent) 
+  #repro check
+this_t <- 2.8487
+reportObject <- reproCheck(reportedValue = '2.81', obtainedValue = this_t, valueType = 't')
+p_value <- 0.006545
+reportObject <- reproCheck(reportedValue = '.007', obtainedValue = p_value, valueType = 'p')
+d_value <- .8223352
+reportObject <- reproCheck(reportedValue = '.83', obtainedValue = d_value, valueType = 'd')
+
+# t-test between 2-exposure and 3-bilingual, and cohen's d
+t.test(data[data$language == 2,]$grid_percent, data[data$language == 3,]$grid_percent, var.equal = TRUE)
+cohen.d(data[data$language == 2,]$grid_percent, data[data$language == 3,]$grid_percent) 
+  #repro check
+this_t <- 0.10759
+reportObject <- reproCheck(reportedValue = '0.072', obtainedValue = this_t, valueType = 't')
+p_value <- .9148
+reportObject <- reproCheck(reportedValue = '.94', obtainedValue = p_value, valueType = 'p')
+d_value <- 0.031058
+reportObject <- reproCheck(reportedValue = '.02', obtainedValue = d_value, valueType = 'd')
+```
+
+# Step 5: Conclusion
+
+In a large extent, my analyses reproduced the results reported in the original paper. I found that the PPVT-4 scores were not significantly different across the language groups. I found that the majority of the bilingual group (58%) and the exposure group (63%) moved all 4 targets correctly, while there were only 21% of the monolingual group achieved that. In addition, children in the 3 groups differed in their percentage of correctly selecting the targets. The bilingual group (76%) and the exposure group (77%) had significantly higher accuracy than the monolingual group (50%).
+
+There were two points that my analyses did not match the original paper. First, the data of accuracy on unambiguous trials seemed not provided in the dataset. Second, the F-value and t-values on the accuratcy percentage from my tests were very close to those reported in the paper, but not exactly the same. For example, the ANOVA result in my analysis was F(2, 69) = 4.84 but that was F(2, 69) = 4.77 in the paper. These nuances did not change any interpretation of the data or the claimed conclusion in the paper.
+
+
+```{r}
+Author_Assistance = FALSE # was author assistance provided? (if so, enter TRUE)
+
+Insufficient_Information_Errors <- 1 # how many discrete insufficient information issues did you encounter?
+
+# Assess the causal locus (discrete reproducibility issues) of any reproducibility errors. Note that there doesn't necessarily have to be a one-to-one correspondance between discrete reproducibility issues and reproducibility errors. For example, it could be that the original article neglects to mention that a Greenhouse-Geisser correct was applied to ANOVA outcomes. This might result in multiple reproducibility errors, but there is a single causal locus (discrete reproducibility issue).
+
+locus_typo <- NA # how many discrete issues did you encounter that related to typographical errors?
+locus_specification <- NA # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
+locus_analysis <- NA # how many discrete issues did you encounter that related to errors in the authors' original analyses?
+locus_data <- 1 # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
+locus_unidentified <- 1 # how many discrete issues were there for which you could not identify the cause
+
+# How many of the above issues were resolved through author assistance?
+locus_typo_resolved <- NA # how many discrete issues did you encounter that related to typographical errors?
+locus_specification_resolved <- NA # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
+locus_analysis_resolved <- NA # how many discrete issues did you encounter that related to errors in the authors' original analyses?
+locus_data_resolved <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
+locus_unidentified_resolved <- NA # how many discrete issues were there for which you could not identify the cause
+
+Affects_Conclusion <- FALSE # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? TRUE, FALSE, or NA. This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
+```
+
+[PILOT/COPILOT DOD NOT EDIT THE CODE CHUNK BELOW]
+
+```{r}
+reportObject <- reportObject %>%
+  filter(dummyRow == FALSE) %>% # remove the dummy row
+  select(-dummyRow) %>% # remove dummy row designation
+  mutate(articleID = articleID) %>% # add variables to report 
+  select(articleID, everything()) # make articleID first column
+
+# decide on final outcome
+if(any(reportObject$comparisonOutcome %in% c("MAJOR_ERROR", "DECISION_ERROR")) | Insufficient_Information_Errors > 0){
+  finalOutcome <- "Failure without author assistance"
+  if(Author_Assistance == T){
+    finalOutcome <- "Failure despite author assistance"
+  }
+}else{
+  finalOutcome <- "Success without author assistance"
+  if(Author_Assistance == T){
+    finalOutcome <- "Success with author assistance"
+  }
+}
+
+# collate report extra details
+reportExtras <- data.frame(articleID, pilotNames, copilotNames, pilotTTC, copilotTTC, pilotStartDate, copilotStartDate, completionDate, Author_Assistance, finalOutcome, Insufficient_Information_Errors, locus_typo, locus_specification, locus_analysis, locus_data, locus_unidentified, locus_typo_resolved, locus_specification_resolved, locus_analysis_resolved, locus_data_resolved, locus_unidentified_resolved)
+
+# save report objects
+if(reportType == "pilot"){
+  write_csv(reportObject, "pilotReportDetailed.csv")
+  write_csv(reportExtras, "pilotReportExtras.csv")
+}
+
+if(reportType == "final"){
+  write_csv(reportObject, "finalReportDetailed.csv")
+  write_csv(reportExtras, "finalReportExtras.csv")
+}
+```
+
+# Session information
+
+[This function will output information about the package versions used in this report:]
+
+```{r session_info, include=TRUE, echo=TRUE, results='markup'}
+devtools::session_info()
+```
